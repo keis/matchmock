@@ -98,6 +98,15 @@ def test_called_with_ok_kwargs():
     assert_that(mock, called_with(x='foo', y=instance_of(int)))
 
 
+def test_called_with_ok_multi():
+    mock = Mock()
+    mock('baz')
+    mock('foo', 5)
+    mock('bar', 5)
+
+    assert_that(mock, called_with('foo', instance_of(int)))
+
+
 def test_called_with_failed():
     expected = '''
 Expected: Mock called with a sequence containing ['foo', an instance of int], () None times

@@ -1,5 +1,5 @@
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import contains, equal_to, all_of, anything, has_entry
+from hamcrest import contains, equal_to, all_of, anything, has_entry, has_item
 
 
 class Call(BaseMatcher):
@@ -43,7 +43,7 @@ class Called(BaseMatcher):
         if item.call_args is None:
             return True
 
-        return self.call.matches(item.call_args)
+        return has_item(self.call).matches(item.call_args_list)
 
     def describe_mismatch(self, item, mismatch_description):
         if self.count is not None and item.call_count != self.count:
@@ -51,7 +51,11 @@ class Called(BaseMatcher):
                 'was called %s times' % item.call_count)
         else:
             mismatch_description.append_text('was called with ')
-            self.call.describe_mismatch(item.call_args, mismatch_description)
+            for i, call in enumerate(item.call_args_list):
+                if i != 0:
+                    mismatch_description.append_text(' and ')
+
+                self.call.describe_mismatch(call, mismatch_description)
 
     def describe_to(self, desc):
         desc.append_text('Mock called with ')
