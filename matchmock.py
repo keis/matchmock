@@ -43,8 +43,6 @@ class Called(BaseMatcher):
         if self.count == 0:
             return True
 
-        print 'has_item', self.call, item.call_args_list
-
         return has_item(self.call).matches(item.call_args_list)
 
     def describe_mismatch(self, item, mismatch_description):
