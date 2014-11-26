@@ -8,6 +8,6 @@ python:
 install:
     - pip install PyHamcrest coveralls
 script:
-    nosetests --with-coverage --cover-package=smoke
+    nosetests --with-coverage --cover-package=matchmock
 after_success:
     coveralls
