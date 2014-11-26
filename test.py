@@ -2,7 +2,8 @@ from mock import Mock
 from contextlib import contextmanager
 from hamcrest import assert_that, instance_of, equal_to
 from hamcrest.core.helpers.wrap_matcher import wrap_matcher, is_matchable_type
-from matchmock import not_called, called_once, called_with, called_once_with
+from matchmock import (called, not_called, called_once, called_with,
+                       called_once_with)
 
 
 class RaisesContext(object):
@@ -24,6 +25,35 @@ def assert_raises(matcher=None, message=''):
         context.exception = e
 
     assert_that(context.exception, matcher, message)
+
+
+def test_called_ok():
+    mock = Mock()
+    mock()
+
+    assert_that(mock, called())
+
+
+def test_called_ok_twice():
+    mock = Mock()
+    mock()
+    mock()
+
+    assert_that(mock, called())
+
+
+def test_called_fail():
+    expected = '''
+Expected: Mock called with ANYTHING None times
+     but: was called 0 times
+'''
+
+    mock = Mock()
+
+    with assert_raises(AssertionError) as e:
+        assert_that(mock, called())
+
+    assert_that(str(e.exception), equal_to(expected))
 
 
 def test_not_called_ok():

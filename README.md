@@ -18,6 +18,7 @@
 
 ## Matchers
 
+* `called` - match mock that was called one or more times
 * `not_called` - match mock that was never called
 * `called_once` - match mock that was called once regardless of arguments
 * `called_with` - match mock has at least one call with the specified arguments

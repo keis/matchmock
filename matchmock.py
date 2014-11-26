@@ -40,13 +40,15 @@ class Called(BaseMatcher):
         if self.count is not None and item.call_count != self.count:
             return False
 
-        if item.call_args is None:
+        if self.count == 0:
             return True
+
+        print 'has_item', self.call, item.call_args_list
 
         return has_item(self.call).matches(item.call_args_list)
 
     def describe_mismatch(self, item, mismatch_description):
-        if self.count is not None and item.call_count != self.count:
+        if item.call_count == 0 or (self.count is not None and item.call_count != self.count):
             mismatch_description.append_text(
                 'was called %s times' % item.call_count)
         else:
@@ -61,6 +63,10 @@ class Called(BaseMatcher):
         desc.append_text('Mock called with ')
         self.call.describe_to(desc)
         desc.append_text(' %s times' % self.count)
+
+
+def called():
+    return Called(anything())
 
 
 def not_called():
