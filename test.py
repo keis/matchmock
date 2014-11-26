@@ -34,7 +34,7 @@ def test_not_called_ok():
 
 def test_not_called_fail():
     expected = '''
-Expected: Mock called with ANYTHING, ANYTHING 0 times
+Expected: Mock called with ANYTHING 0 times
      but: was called 1 times
 '''
 
@@ -56,7 +56,7 @@ def test_called_once_ok():
 
 def test_called_once_fail_not_called():
     expected = '''
-Expected: Mock called with ANYTHING, ANYTHING 1 times
+Expected: Mock called with ANYTHING 1 times
      but: was called 0 times
 '''
 
@@ -70,7 +70,7 @@ Expected: Mock called with ANYTHING, ANYTHING 1 times
 
 def test_called_once_fail_called_twice():
     expected = '''
-Expected: Mock called with ANYTHING, ANYTHING 1 times
+Expected: Mock called with ANYTHING 1 times
      but: was called 2 times
 '''
 
