@@ -2,7 +2,7 @@ from mock import Mock
 from contextlib import contextmanager
 from hamcrest import assert_that, instance_of, equal_to
 from hamcrest.core.helpers.wrap_matcher import wrap_matcher, is_matchable_type
-from hammock import not_called, called_once, called_with, called_once_with
+from matchmock import not_called, called_once, called_with, called_once_with
 
 
 class RaisesContext(object):
