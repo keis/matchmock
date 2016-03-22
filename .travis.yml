@@ -1,12 +1,13 @@
 language: python
+sudo: false
 python:
-    - "2.6"
     - "2.7"
-    - "3.2"
     - "3.3"
+    - "3.4"
+    - "3.5"
     - "pypy"
 install:
-    - pip install PyHamcrest coveralls
+    - pip install -r test-requirements.txt
 script:
     nosetests --with-coverage --cover-package=matchmock
 after_success:
