@@ -44,7 +44,7 @@ def test_called_ok_twice():
 
 def test_called_fail():
     expected = '''
-Expected: Mock called with ANYTHING None times
+Expected: Mock called a value greater than <0> times with ANYTHING
      but: was called 0 times
 '''
 
@@ -64,8 +64,8 @@ def test_not_called_ok():
 
 def test_not_called_fail():
     expected = '''
-Expected: Mock called with ANYTHING 0 times
-     but: was called 1 times
+Expected: Mock called <0> times with ANYTHING
+     but: was called 1 times with <('foo',)>, <{}>
 '''
 
     mock = Mock()
@@ -86,7 +86,7 @@ def test_called_once_ok():
 
 def test_called_once_fail_not_called():
     expected = '''
-Expected: Mock called with ANYTHING 1 times
+Expected: Mock called <1> times with ANYTHING
      but: was called 0 times
 '''
 
@@ -100,8 +100,8 @@ Expected: Mock called with ANYTHING 1 times
 
 def test_called_once_fail_called_twice():
     expected = '''
-Expected: Mock called with ANYTHING 1 times
-     but: was called 2 times
+Expected: Mock called <1> times with ANYTHING
+     but: was called 2 times with <('foo',)>, <{}> and <('bar',)>, <{}>
 '''
 
     mock = Mock()
@@ -139,8 +139,8 @@ def test_called_with_ok_multi():
 
 def test_called_with_failed():
     expected = '''
-Expected: Mock called with a sequence containing ['foo', an instance of int], () None times
-     but: was called with <('foo', 'bar')>, <{}>
+Expected: Mock called a value greater than <0> times with a sequence containing ['foo', an instance of int], ()
+     but: was called 1 times with <('foo', 'bar')>, <{}>
 '''
     mock = Mock()
     mock('foo', 'bar')
