@@ -9,6 +9,6 @@ python:
 install:
     - pip install -r test-requirements.txt
 script:
-    nosetests --with-coverage --cover-package=matchmock
+    py.test --pep8 --flakes --cov=matchmock
 after_success:
     coveralls

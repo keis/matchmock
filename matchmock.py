@@ -1,7 +1,8 @@
 '''Hamcrest matchers for mock objects'''
 
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import contains, equal_to, all_of, anything, has_entry, has_item, greater_than
+from hamcrest import (contains, equal_to, all_of, anything, has_entry,
+                      has_item, greater_than)
 
 __all__ = ['called', 'not_called', 'called_once',
            'called_with', 'called_once_with']
