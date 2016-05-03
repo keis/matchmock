@@ -1,7 +1,8 @@
 '''Hamcrest matchers for mock objects'''
 
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import (contains, equal_to, all_of, anything, has_entry,
+from hamcrest.core.helpers.wrap_matcher import wrap_matcher
+from hamcrest import (contains, equal_to, anything, has_entries,
                       has_item, greater_than)
 
 __all__ = ['called', 'not_called', 'called_once',
@@ -23,9 +24,11 @@ class Call(BaseMatcher):
         return self.args.matches(item[0]) and self.kwargs.matches(item[1])
 
     def describe_call(self, args, kwargs, desc):
+        desc.append_text('(')
         desc.append_description_of(args)
         desc.append_text(', ')
         desc.append_description_of(kwargs)
+        desc.append_text(')')
 
     def describe_mismatch(self, item, mismatch_description):
         args, kwargs = item
@@ -35,16 +38,58 @@ class Call(BaseMatcher):
         self.describe_call(self.args, self.kwargs, desc)
 
 
+class IsArgs(BaseMatcher):
+    def __init__(self, matchers):
+        self._matcher = contains(*matchers)
+
+    def matches(self, obj, mismatch_description=None):
+        return self._matcher.matches(obj, mismatch_description)
+
+    def describe_to(self, desc):
+        desc.append_list('', ', ', '', self._matcher.matchers)
+
+
+class IsKwargs(BaseMatcher):
+    def __init__(self, matchers):
+        self._matcher = has_entries(matchers)
+        self._expected_keys = set(matchers.keys())
+
+    def matches(self, obj, mismatch_description=None):
+        ok = self._matcher.matches(obj, mismatch_description)
+        if not ok:
+            return False
+
+        actual_keys = set(obj.keys())
+        extra_keys = actual_keys - self._expected_keys
+        if len(extra_keys) > 0:
+            if mismatch_description:
+                mismatch_description.append_text('extra arguments') \
+                                    .append_list('', ', ', '', extra_keys)
+            return False
+
+        return True
+
+    def describe_to(self, desc):
+        first = True
+        for key, value in self._matcher.value_matchers:
+            if not first:
+                desc.append_text(', ')
+            desc.append_text(key)   \
+                .append_text('=')  \
+                .append_description_of(value)
+            first = False
+
+
 def match_args(args):
     '''Create a matcher for positional arguments'''
 
-    return contains(*args)
+    return IsArgs(wrap_matcher(m) for m in args)
 
 
 def match_kwargs(kwargs):
     '''Create a matcher for keyword arguments'''
 
-    return all_of(*[has_entry(k, v) for k, v in kwargs.items()])
+    return IsKwargs({k: wrap_matcher(v) for k, v in kwargs.items()})
 
 
 class Called(BaseMatcher):
