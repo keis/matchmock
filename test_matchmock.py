@@ -2,8 +2,7 @@ from mock import Mock
 from contextlib import contextmanager
 from hamcrest import assert_that, instance_of, equal_to
 from hamcrest.core.helpers.wrap_matcher import wrap_matcher, is_matchable_type
-from matchmock import (called, not_called, called_once, called_with,
-                       called_once_with)
+from matchmock import called, not_called, called_once, called_with
 
 
 class RaisesContext(object):
@@ -139,7 +138,8 @@ def test_called_with_ok_multi():
 
 def test_called_with_failed():
     expected = '''
-Expected: Mock called a value greater than <0> times with a sequence containing ['foo', an instance of int], ()
+Expected: Mock called a value greater than <0> times with a sequence\
+ containing ['foo', an instance of int], ()
      but: was called 1 times with <('foo', 'bar')>, <{}>
 '''
     mock = Mock()
