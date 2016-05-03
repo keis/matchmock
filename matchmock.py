@@ -9,6 +9,27 @@ __all__ = ['called', 'not_called', 'called_once',
            'called_with', 'called_once_with']
 
 
+def describe_call(args, kwargs, desc):
+    desc.append_text('(')
+    if isinstance(args, BaseMatcher):
+        desc.append_description_of(args)
+    else:
+        desc.append_list('', ', ', '', args)
+    desc.append_text(', ')
+    if isinstance(kwargs, BaseMatcher):
+        desc.append_description_of(kwargs)
+    else:
+        first = True
+        for key, value in sorted(kwargs.items()):
+            if not first:
+                desc.append_text(', ')
+            desc.append_text(key)   \
+                .append_text('=')  \
+                .append_description_of(value)
+            first = False
+    desc.append_text(')')
+
+
 class Call(BaseMatcher):
     '''A matcher that describes a call.
 
@@ -23,19 +44,12 @@ class Call(BaseMatcher):
     def _matches(self, item):
         return self.args.matches(item[0]) and self.kwargs.matches(item[1])
 
-    def describe_call(self, args, kwargs, desc):
-        desc.append_text('(')
-        desc.append_description_of(args)
-        desc.append_text(', ')
-        desc.append_description_of(kwargs)
-        desc.append_text(')')
-
     def describe_mismatch(self, item, mismatch_description):
         args, kwargs = item
-        self.describe_call(args, kwargs, mismatch_description)
+        describe_call(args, kwargs, mismatch_description)
 
     def describe_to(self, desc):
-        self.describe_call(self.args, self.kwargs, desc)
+        describe_call(self.args, self.kwargs, desc)
 
 
 class IsArgs(BaseMatcher):
@@ -63,7 +77,7 @@ class IsKwargs(BaseMatcher):
         extra_keys = actual_keys - self._expected_keys
         if len(extra_keys) > 0:
             if mismatch_description:
-                mismatch_description.append_text('extra arguments') \
+                mismatch_description.append_text('extra arguments ') \
                                     .append_list('', ', ', '', extra_keys)
             return False
 
@@ -119,7 +133,7 @@ class Called(BaseMatcher):
                 if i != 0:
                     mismatch_description.append_text(' and ')
 
-                Call(call[0], call[1]).describe_to(mismatch_description)
+                describe_call(call[0], call[1], mismatch_description)
 
     def describe_to(self, desc):
         desc.append_text('Mock called ')
