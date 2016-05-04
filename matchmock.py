@@ -1,11 +1,33 @@
 '''Hamcrest matchers for mock objects'''
 
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import (contains, equal_to, all_of, anything, has_entry,
+from hamcrest.core.helpers.wrap_matcher import wrap_matcher
+from hamcrest import (contains, equal_to, anything, has_entries,
                       has_item, greater_than)
 
 __all__ = ['called', 'not_called', 'called_once',
            'called_with', 'called_once_with']
+
+
+def describe_call(args, kwargs, desc):
+    desc.append_text('(')
+    if isinstance(args, BaseMatcher):
+        desc.append_description_of(args)
+    else:
+        desc.append_list('', ', ', '', args)
+    desc.append_text(', ')
+    if isinstance(kwargs, BaseMatcher):
+        desc.append_description_of(kwargs)
+    else:
+        first = True
+        for key, value in sorted(kwargs.items()):
+            if not first:
+                desc.append_text(', ')
+            desc.append_text(key)   \
+                .append_text('=')  \
+                .append_description_of(value)
+            first = False
+    desc.append_text(')')
 
 
 class Call(BaseMatcher):
@@ -22,29 +44,66 @@ class Call(BaseMatcher):
     def _matches(self, item):
         return self.args.matches(item[0]) and self.kwargs.matches(item[1])
 
-    def describe_call(self, args, kwargs, desc):
-        desc.append_description_of(args)
-        desc.append_text(', ')
-        desc.append_description_of(kwargs)
-
     def describe_mismatch(self, item, mismatch_description):
         args, kwargs = item
-        self.describe_call(args, kwargs, mismatch_description)
+        describe_call(args, kwargs, mismatch_description)
 
     def describe_to(self, desc):
-        self.describe_call(self.args, self.kwargs, desc)
+        describe_call(self.args, self.kwargs, desc)
+
+
+class IsArgs(BaseMatcher):
+    def __init__(self, matchers):
+        self._matcher = contains(*matchers)
+
+    def matches(self, obj, mismatch_description=None):
+        return self._matcher.matches(obj, mismatch_description)
+
+    def describe_to(self, desc):
+        desc.append_list('', ', ', '', self._matcher.matchers)
+
+
+class IsKwargs(BaseMatcher):
+    def __init__(self, matchers):
+        self._matcher = has_entries(matchers)
+        self._expected_keys = set(matchers.keys())
+
+    def matches(self, obj, mismatch_description=None):
+        ok = self._matcher.matches(obj, mismatch_description)
+        if not ok:
+            return False
+
+        actual_keys = set(obj.keys())
+        extra_keys = actual_keys - self._expected_keys
+        if len(extra_keys) > 0:
+            if mismatch_description:
+                mismatch_description.append_text('extra arguments ') \
+                                    .append_list('', ', ', '', extra_keys)
+            return False
+
+        return True
+
+    def describe_to(self, desc):
+        first = True
+        for key, value in self._matcher.value_matchers:
+            if not first:
+                desc.append_text(', ')
+            desc.append_text(key)   \
+                .append_text('=')  \
+                .append_description_of(value)
+            first = False
 
 
 def match_args(args):
     '''Create a matcher for positional arguments'''
 
-    return contains(*args)
+    return IsArgs(wrap_matcher(m) for m in args)
 
 
 def match_kwargs(kwargs):
     '''Create a matcher for keyword arguments'''
 
-    return all_of(*[has_entry(k, v) for k, v in kwargs.items()])
+    return IsKwargs({k: wrap_matcher(v) for k, v in kwargs.items()})
 
 
 class Called(BaseMatcher):
@@ -74,7 +133,7 @@ class Called(BaseMatcher):
                 if i != 0:
                     mismatch_description.append_text(' and ')
 
-                Call(call[0], call[1]).describe_to(mismatch_description)
+                describe_call(call[0], call[1], mismatch_description)
 
     def describe_to(self, desc):
         desc.append_text('Mock called ')

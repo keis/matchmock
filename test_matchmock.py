@@ -64,7 +64,7 @@ def test_not_called_ok():
 def test_not_called_fail():
     expected = '''
 Expected: Mock called <0> times with ANYTHING
-     but: was called 1 times with <('foo',)>, <{}>
+     but: was called 1 times with ('foo', )
 '''
 
     mock = Mock()
@@ -100,7 +100,7 @@ Expected: Mock called <1> times with ANYTHING
 def test_called_once_fail_called_twice():
     expected = '''
 Expected: Mock called <1> times with ANYTHING
-     but: was called 2 times with <('foo',)>, <{}> and <('bar',)>, <{}>
+     but: was called 2 times with ('foo', ) and ('bar', )
 '''
 
     mock = Mock()
@@ -138,14 +138,42 @@ def test_called_with_ok_multi():
 
 def test_called_with_failed():
     expected = '''
-Expected: Mock called a value greater than <0> times with a sequence\
- containing ['foo', an instance of int], ()
-     but: was called 1 times with <('foo', 'bar')>, <{}>
+Expected: Mock called a value greater than <0> times with \
+('foo', an instance of int, )
+     but: was called 1 times with ('foo', 'bar', )
 '''
     mock = Mock()
     mock('foo', 'bar')
 
     with assert_raises(AssertionError) as e:
         assert_that(mock, called_with('foo', instance_of(int)))
+
+    assert_that(str(e.exception), equal_to(expected))
+
+
+def test_called_with_kwarg_failed():
+    expected = '''
+Expected: Mock called a value greater than <0> times with (, foo='bar')
+     but: was called 1 times with (, foo='baz')
+'''
+    mock = Mock()
+    mock(foo='baz')
+
+    with assert_raises(AssertionError) as e:
+        assert_that(mock, called_with(foo='bar'))
+
+    assert_that(str(e.exception), equal_to(expected))
+
+
+def test_called_with_extra_kwarg():
+    expected = '''
+Expected: Mock called a value greater than <0> times with ('spam', )
+     but: was called 1 times with ('spam', foo='bar')
+'''
+    mock = Mock()
+    mock('spam', foo='bar')
+
+    with assert_raises(AssertionError) as e:
+        assert_that(mock, called_with('spam'))
 
     assert_that(str(e.exception), equal_to(expected))
