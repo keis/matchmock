@@ -1,4 +1,4 @@
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_entries
 from hamcrest.core.string_description import StringDescription
 from matchmock import Call, match_args, match_kwargs
 
@@ -27,4 +27,12 @@ def test_describe_mismatch():
     call = (('bar',), {})
     s = StringDescription()
     m.describe_mismatch(call, s)
-    assert_that(str(s), equal_to("('bar', )"))
+    assert_that(str(s), equal_to("argument 0: was 'bar'"))
+
+
+def test_args_mismatch_complex():
+    m = match_args((has_entries(name='foo'),))
+    args = ({'name': 'baz'},)
+    s = StringDescription()
+    m.matches(args, s)
+    assert_that(str(s), equal_to("argument 0: value for 'name' was 'baz'"))

@@ -2,7 +2,7 @@
 
 from hamcrest.core.base_matcher import BaseMatcher
 from hamcrest.core.helpers.wrap_matcher import wrap_matcher
-from hamcrest import (contains, equal_to, anything, has_entries,
+from hamcrest import (equal_to, anything, has_entries,
                       has_item, greater_than)
 
 __all__ = ['called', 'not_called', 'called_once',
@@ -46,7 +46,8 @@ class Call(BaseMatcher):
 
     def describe_mismatch(self, item, mismatch_description):
         args, kwargs = item
-        describe_call(args, kwargs, mismatch_description)
+        return (self.args.matches(args, mismatch_description) and
+                self.kwargs.matches(kwargs, mismatch_description))
 
     def describe_to(self, desc):
         describe_call(self.args, self.kwargs, desc)
@@ -54,13 +55,30 @@ class Call(BaseMatcher):
 
 class IsArgs(BaseMatcher):
     def __init__(self, matchers):
-        self._matcher = contains(*matchers)
+        self.matchers = tuple(matchers)
 
     def matches(self, obj, mismatch_description=None):
-        return self._matcher.matches(obj, mismatch_description)
+        md = mismatch_description
+        if len(obj) < len(self.matchers):
+            if md:
+                d = len(self.matchers) - len(obj)
+                md.append_text('missing %s arguments' % d)
+            return False
+        if len(obj) > len(self.matchers):
+            if md:
+                d = len(obj) - len(self.matchers)
+                md.append_text('%s extra arguments' % d)
+            return False
+        for i, (o, m) in enumerate(zip(obj, self.matchers)):
+            if not m.matches(o):
+                if md:
+                    md.append_text('argument ' + str(i) + ': ')
+                    m.describe_mismatch(o, md)
+                return False
+        return True
 
     def describe_to(self, desc):
-        desc.append_list('', ', ', '', self._matcher.matchers)
+        desc.append_list('', ', ', '', self.matchers)
 
 
 class IsKwargs(BaseMatcher):
@@ -69,16 +87,18 @@ class IsKwargs(BaseMatcher):
         self._expected_keys = set(matchers.keys())
 
     def matches(self, obj, mismatch_description=None):
-        ok = self._matcher.matches(obj, mismatch_description)
+        md = mismatch_description
+        ok = self._matcher.matches(obj, md)
         if not ok:
             return False
 
         actual_keys = set(obj.keys())
         extra_keys = actual_keys - self._expected_keys
         if len(extra_keys) > 0:
-            if mismatch_description:
-                mismatch_description.append_text('extra arguments ') \
-                                    .append_list('', ', ', '', extra_keys)
+            if md:
+                md.append_text('extra keyword argument(s) ') \
+                               .append_list('', ', ', '', extra_keys) \
+                               .append_text(' given')
             return False
 
         return True
@@ -123,17 +143,23 @@ class Called(BaseMatcher):
         return has_item(self.call).matches(item.call_args_list)
 
     def describe_mismatch(self, item, mismatch_description):
-        mismatch_description.append_text(
-            'was called %s times' % item.call_count)
+        if not self.count.matches(item.call_count):
+            mismatch_description.append_text(
+                'was called %s times' % item.call_count)
+            if item.call_count > 0:
+                mismatch_description.append_text(' with ')
+
+                for i, call in enumerate(item.call_args_list):
+                    if i != 0:
+                        mismatch_description.append_text(' and ')
+                    describe_call(call[0], call[1], mismatch_description)
+            return
 
         if item.call_count > 0:
-            mismatch_description.append_text(' with ')
-
             for i, call in enumerate(item.call_args_list):
-                if i != 0:
-                    mismatch_description.append_text(' and ')
-
-                describe_call(call[0], call[1], mismatch_description)
+                if item.call_count > 1:
+                    mismatch_description.append_text('in call ' + i)
+                self.call.describe_mismatch(call, mismatch_description)
 
     def describe_to(self, desc):
         desc.append_text('Mock called ')

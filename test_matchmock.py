@@ -140,7 +140,7 @@ def test_called_with_failed():
     expected = '''
 Expected: Mock called a value greater than <0> times with \
 ('foo', an instance of int, )
-     but: was called 1 times with ('foo', 'bar', )
+     but: argument 1: was 'bar'
 '''
     mock = Mock()
     mock('foo', 'bar')
@@ -154,7 +154,7 @@ Expected: Mock called a value greater than <0> times with \
 def test_called_with_kwarg_failed():
     expected = '''
 Expected: Mock called a value greater than <0> times with (, foo='bar')
-     but: was called 1 times with (, foo='baz')
+     but: value for 'foo' was 'baz'
 '''
     mock = Mock()
     mock(foo='baz')
@@ -165,10 +165,24 @@ Expected: Mock called a value greater than <0> times with (, foo='bar')
     assert_that(str(e.exception), equal_to(expected))
 
 
+def test_called_with_extra_arg():
+    expected = '''
+Expected: Mock called a value greater than <0> times with ('spam', )
+     but: 1 extra arguments
+'''
+    mock = Mock()
+    mock('spam', 'bar')
+
+    with assert_raises(AssertionError) as e:
+        assert_that(mock, called_with('spam'))
+
+    assert_that(str(e.exception), equal_to(expected))
+
+
 def test_called_with_extra_kwarg():
     expected = '''
 Expected: Mock called a value greater than <0> times with ('spam', )
-     but: was called 1 times with ('spam', foo='bar')
+     but: extra keyword argument(s) 'foo' given
 '''
     mock = Mock()
     mock('spam', foo='bar')
