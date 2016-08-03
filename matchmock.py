@@ -140,7 +140,7 @@ class Called(BaseMatcher):
         if len(item.call_args_list) == 0:
             return True
 
-        return has_item(self.call).matches(item.call_args_list)
+        return bool(has_item(self.call).matches(item.call_args_list))
 
     def describe_mismatch(self, item, mismatch_description):
         if not self.count.matches(item.call_count):
