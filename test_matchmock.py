@@ -1,8 +1,6 @@
 import pytest
 from mock import Mock
-from contextlib import contextmanager
 from hamcrest import assert_that, instance_of, equal_to
-from hamcrest.core.helpers.wrap_matcher import wrap_matcher, is_matchable_type
 from hamcrest.core.string_description import StringDescription
 from matchmock import called, not_called, called_once, called_with
 
@@ -148,7 +146,7 @@ def test_called_with_ok_multi():
 
 def test_called_with_description(desc):
     expected = ("Mock called a value greater than <0> times with " +
-        "('foo', an instance of int, )")
+                "('foo', an instance of int, )")
     matcher = called_with('foo', instance_of(int))
 
     matcher.describe_to(desc)
