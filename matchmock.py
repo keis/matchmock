@@ -158,8 +158,10 @@ class Called(BaseMatcher):
         if item.call_count > 0:
             for i, call in enumerate(item.call_args_list):
                 if item.call_count > 1:
-                    mismatch_description.append_text('in call ' + i)
+                    mismatch_description.append_text('in call %s: ' % i)
                 self.call.describe_mismatch(call, mismatch_description)
+                if i != item.call_count - 1:
+                    mismatch_description.append_text(', ')
 
     def describe_to(self, desc):
         desc.append_text('Mock called ')

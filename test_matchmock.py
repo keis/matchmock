@@ -164,6 +164,18 @@ def test_called_with_failed(desc):
     assert_that(str(desc), equal_to(expected))
 
 
+def test_called_with_failed_multi(desc):
+    expected = "in call 0: argument 1: was 'bar', in call 1: 1 extra arguments"
+    matcher = called_with('foo', instance_of(int))
+    mock = Mock()
+    mock('foo', 'bar')
+    mock('foo', 'bar', 'baz')
+
+    ok = matcher.matches(mock, desc)
+    assert_that(ok, equal_to(False))
+    assert_that(str(desc), equal_to(expected))
+
+
 def test_called_with_kwarg_failed(desc):
     expected = "value for 'foo' was 'baz'"
     matcher = called_with(foo='bar')
