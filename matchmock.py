@@ -6,7 +6,7 @@ from hamcrest import (equal_to, anything, has_entries,
                       has_item, greater_than)
 
 __all__ = ['called', 'not_called', 'called_once',
-           'called_with', 'called_once_with']
+           'called_with', 'called_once_with', 'called_n_times']
 
 
 def describe_call(args, kwargs, desc):
@@ -174,6 +174,12 @@ def called():
     '''Match mock that was called one or more times'''
 
     return Called(anything(), count=greater_than(0))
+
+
+def called_n_times(n):
+    '''Match mock that was called exactly a given number of times'''
+
+    return Called(anything(), count=equal_to(n))
 
 
 def not_called():
