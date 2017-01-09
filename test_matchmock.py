@@ -1,8 +1,9 @@
 import pytest
 from mock import Mock
-from hamcrest import assert_that, instance_of, equal_to
+from hamcrest import assert_that, instance_of, equal_to, starts_with
 from hamcrest.core.string_description import StringDescription
-from matchmock import called, not_called, called_once, called_with
+from matchmock import (
+    called, not_called, called_once, called_with, called_n_times)
 
 
 @pytest.fixture
@@ -27,6 +28,29 @@ def test_called_ok_twice():
 
     ok = matcher.matches(mock)
     assert_that(ok, equal_to(True))
+
+
+def test_called_ok_explicitly_twice():
+    matcher = called_n_times(2)
+    mock = Mock()
+    mock()
+    mock()
+
+    ok = matcher.matches(mock)
+    assert_that(ok, equal_to(True))
+
+
+def test_called_ok_explicitly_twice_fail(desc):
+    expected = 'was called 3 times'
+    matcher = called_n_times(2)
+    mock = Mock()
+    mock()
+    mock()
+    mock()
+
+    ok = matcher.matches(mock, desc)
+    assert_that(ok, equal_to(False))
+    assert_that(str(desc), starts_with(expected))
 
 
 def test_called_description(desc):
