@@ -22,7 +22,8 @@
 * `not_called` - match mock that was never called
 * `called_once` - match mock that was called once regardless of arguments
 * `called_with` - match mock has at least one call with the specified arguments
-* `called_once_with` - match mock that was called once and with the specified arguments.
+* `called_once_with` - match mock that was called once and with the specified arguments
+* `called_n_times` - match mock that was called number of times.
 
 [pypi-image]: https://img.shields.io/pypi/v/matchmock.svg?style=flat
 [travis-image]: https://img.shields.io/travis/keis/matchmock.svg?style=flat
