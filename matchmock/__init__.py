@@ -30,7 +30,7 @@ def describe_call(args, kwargs, desc):
     desc.append_text(')')
 
 
-class Call(BaseMatcher):
+class IsCall(BaseMatcher):
     '''A matcher that describes a call.
 
     The positional arguments and keyword arguments are represented with
@@ -126,7 +126,7 @@ def match_kwargs(kwargs):
     return IsKwargs({k: wrap_matcher(v) for k, v in kwargs.items()})
 
 
-class Called(BaseMatcher):
+class IsCalled(BaseMatcher):
     '''Matches a mock and asserts the number of calls and parameters'''
 
     def __init__(self, call, count=None):
@@ -173,36 +173,36 @@ class Called(BaseMatcher):
 def called():
     '''Match mock that was called one or more times'''
 
-    return Called(anything(), count=greater_than(0))
+    return IsCalled(anything(), count=greater_than(0))
 
 
 def called_n_times(n):
     '''Match mock that was called exactly a given number of times'''
 
-    return Called(anything(), count=equal_to(n))
+    return IsCalled(anything(), count=equal_to(n))
 
 
 def not_called():
     '''Match mock that was never called'''
 
-    return Called(anything(), count=equal_to(0))
+    return IsCalled(anything(), count=equal_to(0))
 
 
 def called_once():
     '''Match mock that was called once regardless of arguments'''
 
-    return Called(anything(), count=equal_to(1))
+    return IsCalled(anything(), count=equal_to(1))
 
 
 def called_with(*args, **kwargs):
     '''Match mock has at least one call with the specified arguments'''
 
-    return Called(Call(match_args(args), match_kwargs(kwargs)),
-                  count=greater_than(0))
+    return IsCalled(IsCall(match_args(args), match_kwargs(kwargs)),
+                    count=greater_than(0))
 
 
 def called_once_with(*args, **kwargs):
     '''Match mock that was called once and with the specified arguments'''
 
-    return Called(Call(match_args(args), match_kwargs(kwargs)),
-                  count=equal_to(1))
+    return IsCalled(IsCall(match_args(args), match_kwargs(kwargs)),
+                    count=equal_to(1))
