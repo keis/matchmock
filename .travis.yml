@@ -1,5 +1,5 @@
 language: python
-sudo: false
+os: linux
 python:
     - "2.7"
     - "3.6"
@@ -7,8 +7,8 @@ python:
     - "3.8"
     - "pypy"
 install:
-    - pip install -r test-requirements.txt
+    - pip install '.[tests]'
 script:
-    py.test --pep8 --flakes --cov=matchmock
+    py.test --flakes --cov=matchmock
 after_success:
     coveralls
