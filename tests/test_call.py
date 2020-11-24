@@ -7,7 +7,6 @@ from unittest.mock import call
 def test_matching_call():
     m = IsCall(match_args(('foo',)), match_kwargs({}))
     value = call('foo')
-    print(value)
     assert_that(m.matches(value), equal_to(True))
 
 
@@ -24,12 +23,27 @@ def test_describe_self():
     assert_that(str(s), equal_to("('foo', )"))
 
 
+def test_describe_self_with_kwargs():
+    m = IsCall(match_args(('foo',)), match_kwargs({'key': 'value'}))
+    s = StringDescription()
+    m.describe_to(s)
+    assert_that(str(s), equal_to("('foo', key='value')"))
+
+
 def test_describe_mismatch():
     m = IsCall(match_args(('foo',)), match_kwargs({}))
     value = call('bar')
     s = StringDescription()
     m.describe_mismatch(value, s)
     assert_that(str(s), equal_to("argument 0: was 'bar'"))
+
+
+def test_describe_mismatch_kwargs():
+    m = IsCall(match_args(('foo',)), match_kwargs({'key': 'value'}))
+    value = call('foo', key='VALUE')
+    s = StringDescription()
+    m.describe_mismatch(value, s)
+    assert_that(str(s), equal_to("value for 'key' was 'VALUE'"))
 
 
 def test_args_mismatch_complex():

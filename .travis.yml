@@ -1,11 +1,10 @@
 language: python
 os: linux
 python:
-    - "2.7"
     - "3.6"
     - "3.7"
     - "3.8"
-    - "pypy"
+    - "3.9"
 install:
     - pip install '.[tests]'
 script:
