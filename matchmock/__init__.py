@@ -11,22 +11,16 @@ __all__ = ['called', 'not_called', 'called_once',
 
 def describe_call(args, kwargs, desc):
     desc.append_text('(')
-    if isinstance(args, BaseMatcher):
-        desc.append_description_of(args)
-    else:
-        desc.append_list('', ', ', '', args)
+    desc.append_list('', ', ', '', args)
     desc.append_text(', ')
-    if isinstance(kwargs, BaseMatcher):
-        desc.append_description_of(kwargs)
-    else:
-        first = True
-        for key, value in sorted(kwargs.items()):
-            if not first:
-                desc.append_text(', ')
-            desc.append_text(key)   \
-                .append_text('=')  \
-                .append_description_of(value)
-            first = False
+    first = True
+    for key, value in sorted(kwargs.items()):
+        if not first:
+            desc.append_text(', ')
+        desc.append_text(key)   \
+            .append_text('=')  \
+            .append_description_of(value)
+        first = False
     desc.append_text(')')
 
 
@@ -50,7 +44,11 @@ class IsCall(BaseMatcher):
                 self.kwargs.matches(kwargs, mismatch_description))
 
     def describe_to(self, desc):
-        describe_call(self.args, self.kwargs, desc)
+        desc.append_text('(')
+        desc.append_description_of(self.args)
+        desc.append_text(', ')
+        desc.append_description_of(self.kwargs)
+        desc.append_text(')')
 
 
 class IsArgs(BaseMatcher):
