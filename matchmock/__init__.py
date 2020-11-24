@@ -36,10 +36,19 @@ class IsCall(BaseMatcher):
         self.kwargs = kwargs
 
     def _matches(self, item):
-        return self.args.matches(item[0]) and self.kwargs.matches(item[1])
+        # in python >= 3.8 this can be item.args, item.kwargs
+        if len(item) == 3:
+            _name, args, kwargs = item
+        else:
+            args, kwargs = item
+        return self.args.matches(args) and self.kwargs.matches(kwargs)
 
     def describe_mismatch(self, item, mismatch_description):
-        args, kwargs = item
+        # in python >= 3.8 this can be item.args, item.kwargs
+        if len(item) == 3:
+            _name, args, kwargs = item
+        else:
+            args, kwargs = item
         return (self.args.matches(args, mismatch_description) and
                 self.kwargs.matches(kwargs, mismatch_description))
 
