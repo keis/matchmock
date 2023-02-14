@@ -1,6 +1,6 @@
 '''Hamcrest matchers for mock objects'''
 
-from typing import Any, Collection, Mapping, Sequence, Tuple
+from typing import Any, Collection, Mapping, Optional, Sequence, Tuple
 
 from unittest.mock import Mock, _Call
 from hamcrest.core.base_matcher import BaseMatcher
@@ -53,7 +53,11 @@ class IsCall(BaseMatcher[_Call]):
             args, kwargs = item
         return self.args.matches(args) and self.kwargs.matches(kwargs)
 
-    def describe_mismatch(self, item: _Call, mismatch_description: Description) -> None:
+    def describe_mismatch(
+        self,
+        item: _Call,
+        mismatch_description: Description
+    ) -> None:
         # in python >= 3.8 this can be item.args, item.kwargs
         if len(item) == 3:
             _name, args, kwargs = item
@@ -76,7 +80,11 @@ class IsArgs(BaseMatcher[_Args]):
     def __init__(self, matchers: Sequence[Matcher]) -> None:
         self.matchers = matchers
 
-    def matches(self, obj: _Args, mismatch_description: Description = None) -> bool:
+    def matches(
+        self,
+        obj: _Args,
+        mismatch_description: Optional[Description] = None
+    ) -> bool:
         md = mismatch_description
         if len(obj) < len(self.matchers):
             if md:
@@ -108,7 +116,11 @@ class IsKwargs(BaseMatcher[_Kwargs]):
         self._value_matchers = value_matchers.items()
         self._matcher = has_entries(value_matchers)
 
-    def matches(self, obj: _Kwargs, mismatch_description: Description = None) -> bool:
+    def matches(
+        self,
+        obj: _Kwargs,
+        mismatch_description: Optional[Description] = None
+    ) -> bool:
         md = mismatch_description
         ok = self._matcher.matches(obj, md)
         if not ok:
@@ -170,7 +182,11 @@ class IsCalled(BaseMatcher[Mock]):
 
         return self.has_call.matches(item.call_args_list)
 
-    def describe_mismatch(self, item: Mock, mismatch_description: Description) -> None:
+    def describe_mismatch(
+        self,
+        item: Mock,
+        mismatch_description: Description
+    ) -> None:
         if not self.count.matches(item.call_count):
             mismatch_description.append_text(
                 'was called %s times' % item.call_count)
